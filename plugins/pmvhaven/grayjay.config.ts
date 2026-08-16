@@ -13,8 +13,8 @@ export default defineConfig({
   authorUrl: "https://github.com/sylm54",
   repositoryUrl: "https://github.com/sylm54/pmvhaven",
 
-  // One above the last published version of the original plugin.
-  version: 13,
+  // Bump on releases; installed apps poll sourceUrl and compare versions.
+  version: 14,
   id: "03fb92a4-f857-4f45-a7bf-00c1660e75cb",
   iconUrl: "./PMVHavenIcon.png",
 
@@ -45,6 +45,10 @@ export default defineConfig({
   ],
 
   changelog: {
+    "14": [
+      "Fix: recommendations not showing from the video details screen — the details object now provides getContentRecommendations (both engines invoke it on the object, with no arguments); falls back to the uploader's other videos when a page has no related feed;",
+      "Fix: page cache is shared between details, source-level and details-object recommendation calls;",
+    ],
     "13": [
       "Feature: channel pages (info, videos, playlists);",
       "Feature: playlist pages with full contents;",

@@ -134,6 +134,14 @@
 
     "undici-types": ["undici-types@8.3.0", "", {}, "sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ=="],
 
+    "@grayjay/plugin-pmvhaven/@grayjay/cli": ["@grayjay/cli@file:packages/cli", { "dependencies": { "@grayjay/config": "workspace:*", "@grayjay/sign": "workspace:*", "@grayjay/tester": "workspace:*", "qrcode-terminal": "^0.12.0" }, "devDependencies": { "@types/qrcode-terminal": "^0.12.2" }, "bin": { "gj": "./bin/gj.ts" } }],
+
+    "@grayjay/plugin-pmvhaven/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
+
+    "@grayjay/plugin-pmvhaven/@grayjay/runtime": ["@grayjay/runtime@file:packages/runtime", {}],
+
+    "@grayjay/plugin-pmvhaven/@grayjay/tester": ["@grayjay/tester@file:packages/tester", { "dependencies": { "@grayjay/config": "workspace:*", "@grayjay/runtime": "workspace:*" }, "devDependencies": { "linkedom": "^0.18.12" }, "peerDependencies": { "linkedom": "^0.18" }, "optionalPeers": ["linkedom"] }],
+
     "dom-serializer/domelementtype": ["domelementtype@3.0.0", "", {}, "sha512-umCQid3jKbDmVjx8jGaW7uUykm4DEUeyV21hPxNMo2nV955DhUThwqyOIDtreepP31hl84X7G5U9ZfsWvIB3Pg=="],
 
     "dom-serializer/entities": ["entities@8.0.0", "", {}, "sha512-zwfzJecQ/Uej6tusMqwAqU/6KL2XaB2VZ2Jg54Je6ahNBGNH6Ek6g3jjNCF0fG9EWQKGZNddNjU5F1ZQn/sBnA=="],
@@ -146,7 +154,19 @@
 
     "htmlparser2/domutils": ["domutils@3.2.2", "", { "dependencies": { "dom-serializer": "^2.0.0", "domelementtype": "^2.3.0", "domhandler": "^5.0.3" } }, "sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw=="],
 
+    "@grayjay/plugin-pmvhaven/@grayjay/cli/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
+
+    "@grayjay/plugin-pmvhaven/@grayjay/cli/@grayjay/tester": ["@grayjay/tester@file:packages/tester", { "dependencies": { "@grayjay/config": "workspace:*", "@grayjay/runtime": "workspace:*" }, "devDependencies": { "linkedom": "^0.18.12" }, "peerDependencies": { "linkedom": "^0.18" }, "optionalPeers": ["linkedom"] }],
+
+    "@grayjay/plugin-pmvhaven/@grayjay/tester/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
+
+    "@grayjay/plugin-pmvhaven/@grayjay/tester/@grayjay/runtime": ["@grayjay/runtime@file:packages/runtime", {}],
+
     "htmlparser2/domutils/dom-serializer": ["dom-serializer@2.0.0", "", { "dependencies": { "domelementtype": "^2.3.0", "domhandler": "^5.0.2", "entities": "^4.2.0" } }, "sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg=="],
+
+    "@grayjay/plugin-pmvhaven/@grayjay/cli/@grayjay/tester/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
+
+    "@grayjay/plugin-pmvhaven/@grayjay/cli/@grayjay/tester/@grayjay/runtime": ["@grayjay/runtime@file:packages/runtime", {}],
 
     "htmlparser2/domutils/dom-serializer/entities": ["entities@4.5.0", "", {}, "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="],
   }

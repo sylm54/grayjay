@@ -1,7 +1,7 @@
 /** Map pmvhaven API models to Grayjay engine content types. */
 
 import type { ApiChannelUser, ApiComment, ApiPlaylist, ApiVideo } from "./models.js";
-import { videoUrl } from "./api.js";
+import { recommendedVideosFor, videoUrl } from "./api.js";
 
 const PLATFORM = "PMVHaven";
 
@@ -147,6 +147,7 @@ export function toVideoDetails(video: ApiVideo): PlatformVideoDetails {
   const { descriptor, live } = buildVideoSources(video);
   const likes = typeof video.likes === "number" ? video.likes : 0;
   const dislikes = typeof video.dislikes === "number" ? video.dislikes : 0;
+  const canonicalUrl = videoUrl(video._id, video.title);
 
   return new PlatformVideoDetails({
     id: new PlatformID(PLATFORM, video._id, pluginId()),
@@ -156,13 +157,20 @@ export function toVideoDetails(video: ApiVideo): PlatformVideoDetails {
     datetime: parseDate(video.uploadDate),
     duration: parseDurationSeconds(video),
     viewCount: typeof video.views === "number" ? video.views : -1,
-    url: videoUrl(video._id, video.title),
+    url: canonicalUrl,
     isLive: false,
     description: buildDescription(video),
     video: descriptor,
     live,
     rating: new RatingLikesDislikes(likes, dislikes),
     subtitles: [],
+    // The engines invoke this on the details object with zero arguments
+    // (Android and desktop both check `HasFunction("getContentRecommendations")`),
+    // so the closure is self-contained and ignores whatever the caller passes.
+    getContentRecommendations: (..._args: unknown[]) => {
+      const related = recommendedVideosFor(canonicalUrl);
+      return new VideoPager(related.map(toFeedVideo), false, { url: canonicalUrl });
+    },
   });
 }
 

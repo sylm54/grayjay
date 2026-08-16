@@ -7,37 +7,21 @@
  */
 
 import {
+  cachedVideoPage,
   fetchChannel,
   fetchPlaylist,
-  fetchVideoPage,
   getComments,
   getTagSuggestions,
   isChannelUrlShape,
   isPlaylistUrlShape,
   isVideoUrl,
+  recommendedVideosFor,
   searchVideos,
   videoIdFromUrl,
 } from "./api.js";
 import { toChannel, toComment, toFeedVideo, toPlaylistDetails, toPlaylistEntry, toVideoDetails } from "./mapping.js";
 import { PmvCommentsPager, SearchPager, TrendingPager } from "./pagers.js";
 import type { ApiComment } from "./models.js";
-
-/** Small cache of decoded video pages (details + recommendations share one fetch). */
-const videoPageCache = new Map<string, ReturnType<typeof fetchVideoPage>>();
-const CACHE_LIMIT = 5;
-
-function cachedVideoPage(url: string): ReturnType<typeof fetchVideoPage> {
-  const id = videoIdFromUrl(url) ?? url;
-  const cached = videoPageCache.get(id);
-  if (cached) return cached;
-  const page = fetchVideoPage(url);
-  if (videoPageCache.size >= CACHE_LIMIT) {
-    const oldest = videoPageCache.keys().next().value;
-    if (oldest !== undefined) videoPageCache.delete(oldest);
-  }
-  videoPageCache.set(id, page);
-  return page;
-}
 
 type HomeFeed = "latest" | "trending-all" | "trending-24h" | "trending-1h";
 
@@ -164,8 +148,10 @@ definePlugin({
   },
 
   getContentRecommendations(url) {
-    const recommended = cachedVideoPage(url).recommended ?? [];
-    return new VideoPager(recommended.map(toFeedVideo), false, { url });
+    // Source-level path (client.getContentRecommendations): the app also has a
+    // details-object path, which the details object itself now provides.
+    const related = recommendedVideosFor(url);
+    return new VideoPager(related.map(toFeedVideo), false, { url });
   },
 
   /* -- comments --------------------------------------------------------------------------- */

@@ -161,6 +161,7 @@ try
         "channel" when param != null => plugin.GetChannel(param),
         "channel-contents" when param != null => SerializePager(plugin.GetChannelContents(param)),
         "details" when param != null => plugin.GetContentDetails(param),
+        "recommendations" when param != null => SerializePager(plugin.getContentRecommendations(param)),
         "comments" when param != null => SerializePager(plugin.GetComments(param)),
         "playlist" when param != null => plugin.GetPlaylist(param),
         "is-playlist-url" when param != null => plugin.IsPlaylistUrl(param),

@@ -162,6 +162,40 @@ describe("PMVHaven", () => {
     expectVideo(pager.results[0]!);
   });
 
+  test("the details object exposes getContentRecommendations (zero-arg, like the engines invoke it)", async () => {
+    await preload();
+    const env = await makeEnv();
+    const details = env.source.getContentDetails!(VIDEO_URL) as unknown as {
+      getContentRecommendations?: () => unknown;
+    };
+    expect(typeof details.getContentRecommendations).toBe("function");
+
+    // Android + desktop both call it with no arguments.
+    const pager = expectPager(details.getContentRecommendations!(), "VideoPager");
+    expect(pager.results.length).toBeGreaterThan(0);
+    expectVideo(pager.results[0]!);
+
+    // Still a single page fetch: details, source-level and details-object use
+    // one shared cache.
+    const videoFetches = env.requests.filter((r) => /\/video\//.test(r.url)).length;
+    expect(videoFetches).toBe(1);
+  });
+
+  test("recommendations fall back to uploader videos when a page has none", async () => {
+    await preload();
+    // "--nocache--" forces a fresh page fetch; first serve a page WITHOUT
+    // recommendedVideos, then the fallback (uploader videos) must kick in.
+    const noRecFixture = (await fixtureText("video-page.html")).replace('"recommendedVideos"', '"recommendedVideosXXX"');
+    cache.set("https://pmvhaven.com/video/norecs_000000000000000000000000", noRecFixture);
+    const env = await makeEnv();
+    const pager = expectPager(
+      env.source.getContentRecommendations!("https://pmvhaven.com/video/norecs_000000000000000000000000"),
+      "VideoPager",
+    );
+    // The uploader's videos from the same page payload.
+    expect(pager.results.length).toBeGreaterThan(0);
+  });
+
   test("comments map to the engine contract", async () => {
     await preload();
     const env = await makeEnv();
@@ -227,7 +261,7 @@ describe("PMVHaven", () => {
   test("enable logs and saveState roundtrip", async () => {
     await preload();
     const env = await makeEnv();
-    expect(env.logs.some((line) => line.includes("PMVHaven enabled (v13)"))).toBe(true);
+    expect(env.logs.some((line) => line.includes("PMVHaven enabled (v14)"))).toBe(true);
     const state = env.source.saveState!();
     expect(JSON.parse(state).savedAt).toBeGreaterThan(0);
   });

@@ -135,6 +135,39 @@ export function fetchVideoPage(url: string): VideoPage {
   };
 }
 
+/* ---------------------------------------------------------------------------
+ * Cached video pages + recommendations
+ *
+ * The engine can request a video's details and its recommendations in
+ * separate calls; a single page fetch serves both. The page's related feed is
+ * the primary source, with the uploader's other videos as a fallback when a
+ * video has no related items.
+ * ------------------------------------------------------------------------- */
+
+const videoPageCache = new Map<string, VideoPage>();
+const CACHE_LIMIT = 5;
+
+export function cachedVideoPage(url: string): VideoPage {
+  const id = videoIdFromUrl(url) ?? url;
+  const cached = videoPageCache.get(id);
+  if (cached) return cached;
+  const page = fetchVideoPage(url);
+  if (videoPageCache.size >= CACHE_LIMIT) {
+    const oldest = videoPageCache.keys().next().value;
+    if (oldest !== undefined) videoPageCache.delete(oldest);
+  }
+  videoPageCache.set(id, page);
+  return page;
+}
+
+/** Videos recommended alongside this one (related feed, else uploader's own). */
+export function recommendedVideosFor(url: string): ApiVideo[] {
+  const page = cachedVideoPage(url);
+  const related = page.recommended ?? [];
+  if (related.length > 0) return related;
+  return page.uploaderVideos ?? [];
+}
+
 export function fetchChannel(url: string): ApiChannelUser {
   const payload = extractNuxtPayload(get(url));
   const container = findNuxtObject(payload, ["username", "videos", "playlists", "subscribersCount"]);

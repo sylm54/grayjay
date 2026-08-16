@@ -89,6 +89,19 @@
         "typescript": "^5.6.0",
       },
     },
+    "plugins/sissyhypno": {
+      "name": "@grayjay/plugin-sissyhypno",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@grayjay/cli": "file:../../packages/cli",
+        "@grayjay/config": "file:../../packages/config",
+        "@grayjay/runtime": "file:../../packages/runtime",
+        "@grayjay/tester": "file:../../packages/tester",
+        "@types/bun": "^1.3.14",
+        "linkedom": "^0.18.9",
+        "typescript": "^5.6.0",
+      },
+    },
   },
   "packages": {
     "@grayjay/cli": ["@grayjay/cli@workspace:packages/cli"],
@@ -100,6 +113,8 @@
     "@grayjay/plugin-hypnotube": ["@grayjay/plugin-hypnotube@workspace:plugins/hypnotube"],
 
     "@grayjay/plugin-pmvhaven": ["@grayjay/plugin-pmvhaven@workspace:plugins/pmvhaven"],
+
+    "@grayjay/plugin-sissyhypno": ["@grayjay/plugin-sissyhypno@workspace:plugins/sissyhypno"],
 
     "@grayjay/runtime": ["@grayjay/runtime@workspace:packages/runtime"],
 
@@ -165,6 +180,14 @@
 
     "@grayjay/plugin-pmvhaven/@grayjay/tester": ["@grayjay/tester@file:packages/tester", { "dependencies": { "@grayjay/config": "workspace:*", "@grayjay/runtime": "workspace:*" }, "devDependencies": { "linkedom": "^0.18.12" }, "peerDependencies": { "linkedom": "^0.18" }, "optionalPeers": ["linkedom"] }],
 
+    "@grayjay/plugin-sissyhypno/@grayjay/cli": ["@grayjay/cli@file:packages/cli", { "dependencies": { "@grayjay/config": "workspace:*", "@grayjay/sign": "workspace:*", "@grayjay/tester": "workspace:*", "qrcode-terminal": "^0.12.0" }, "devDependencies": { "@types/qrcode-terminal": "^0.12.2" }, "bin": { "gj": "./bin/gj.ts" } }],
+
+    "@grayjay/plugin-sissyhypno/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
+
+    "@grayjay/plugin-sissyhypno/@grayjay/runtime": ["@grayjay/runtime@file:packages/runtime", {}],
+
+    "@grayjay/plugin-sissyhypno/@grayjay/tester": ["@grayjay/tester@file:packages/tester", { "dependencies": { "@grayjay/config": "workspace:*", "@grayjay/runtime": "workspace:*" }, "devDependencies": { "linkedom": "^0.18.12" }, "peerDependencies": { "linkedom": "^0.18" }, "optionalPeers": ["linkedom"] }],
+
     "dom-serializer/domelementtype": ["domelementtype@3.0.0", "", {}, "sha512-umCQid3jKbDmVjx8jGaW7uUykm4DEUeyV21hPxNMo2nV955DhUThwqyOIDtreepP31hl84X7G5U9ZfsWvIB3Pg=="],
 
     "dom-serializer/entities": ["entities@8.0.0", "", {}, "sha512-zwfzJecQ/Uej6tusMqwAqU/6KL2XaB2VZ2Jg54Je6ahNBGNH6Ek6g3jjNCF0fG9EWQKGZNddNjU5F1ZQn/sBnA=="],
@@ -193,6 +216,14 @@
 
     "@grayjay/plugin-pmvhaven/@grayjay/tester/@grayjay/runtime": ["@grayjay/runtime@file:packages/runtime", {}],
 
+    "@grayjay/plugin-sissyhypno/@grayjay/cli/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
+
+    "@grayjay/plugin-sissyhypno/@grayjay/cli/@grayjay/tester": ["@grayjay/tester@file:packages/tester", { "dependencies": { "@grayjay/config": "workspace:*", "@grayjay/runtime": "workspace:*" }, "devDependencies": { "linkedom": "^0.18.12" }, "peerDependencies": { "linkedom": "^0.18" }, "optionalPeers": ["linkedom"] }],
+
+    "@grayjay/plugin-sissyhypno/@grayjay/tester/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
+
+    "@grayjay/plugin-sissyhypno/@grayjay/tester/@grayjay/runtime": ["@grayjay/runtime@file:packages/runtime", {}],
+
     "htmlparser2/domutils/dom-serializer": ["dom-serializer@2.0.0", "", { "dependencies": { "domelementtype": "^2.3.0", "domhandler": "^5.0.2", "entities": "^4.2.0" } }, "sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg=="],
 
     "@grayjay/plugin-hypnotube/@grayjay/cli/@grayjay/tester/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
@@ -202,6 +233,10 @@
     "@grayjay/plugin-pmvhaven/@grayjay/cli/@grayjay/tester/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
 
     "@grayjay/plugin-pmvhaven/@grayjay/cli/@grayjay/tester/@grayjay/runtime": ["@grayjay/runtime@file:packages/runtime", {}],
+
+    "@grayjay/plugin-sissyhypno/@grayjay/cli/@grayjay/tester/@grayjay/config": ["@grayjay/config@file:packages/config", {}],
+
+    "@grayjay/plugin-sissyhypno/@grayjay/cli/@grayjay/tester/@grayjay/runtime": ["@grayjay/runtime@file:packages/runtime", {}],
 
     "htmlparser2/domutils/dom-serializer/entities": ["entities@4.5.0", "", {}, "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="],
   }

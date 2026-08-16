@@ -1,0 +1,1 @@
+import "@grayjay/runtime/globals";

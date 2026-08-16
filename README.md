@@ -13,6 +13,7 @@ examples/
   feed-demo/                   Fully offline example plugin proving the toolchain end to end
 plugins/
   pmvhaven/                    Real-world plugin (typed rebuild of github.com/sylm54/pmvhaven)
+  sissyhypno/                  Real-world plugin (typed rebuild of github.com/sylm54/shypno)
 ```
 
 The type surface mirrors the actual Android engine (`V8Plugin.kt`, `JSClient.kt`, the app's `source.js` polyfill) — not just the (sometimes outdated) docs.

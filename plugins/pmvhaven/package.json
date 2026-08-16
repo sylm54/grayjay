@@ -2,7 +2,7 @@
   "name": "@grayjay/plugin-pmvhaven",
   "version": "0.1.0",
   "private": true,
-  "description": "PMVHaven plugin for Grayjay — typed rebuild with channels, playlists, comments and HLS.",
+  "description": "PMVHaven plugin for Grayjay \u2014 typed rebuild with channels, playlists, comments and HLS.",
   "type": "module",
   "scripts": {
     "build": "gj build",

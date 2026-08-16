@@ -14,8 +14,8 @@
     "check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@grayjay/runtime": "file:../runtime",
-    "@grayjay/config": "file:../config"
+    "@grayjay/runtime": "workspace:*",
+    "@grayjay/config": "workspace:*"
   },
   "peerDependencies": {
     "linkedom": "^0.18"

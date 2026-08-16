@@ -17,9 +17,9 @@
     "check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@grayjay/config": "file:../config",
-    "@grayjay/sign": "file:../sign",
-    "@grayjay/tester": "file:../tester",
+    "@grayjay/config": "workspace:*",
+    "@grayjay/sign": "workspace:*",
+    "@grayjay/tester": "workspace:*",
     "qrcode-terminal": "^0.12.0"
   },
   "devDependencies": {

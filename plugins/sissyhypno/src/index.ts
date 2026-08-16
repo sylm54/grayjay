@@ -6,6 +6,7 @@
  * videos, user channels with paginated uploads, and comments.
  */
 
+import type { PagerContext } from "@grayjay/runtime";
 import {
   BASE,
   fetchChannel,

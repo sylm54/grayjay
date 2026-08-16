@@ -1,5 +1,6 @@
 /** Pagers over sissyhypno.com's pageN.html-paginated HTML grids. */
 
+import type { PagerContext } from "@grayjay/runtime";
 import { fetchFeedPage, type ScrapedVideo } from "./scrape.js";
 import { toFeedVideo } from "./mapping.js";
 

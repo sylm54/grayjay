@@ -57,7 +57,6 @@ export function toVideoDetails(details: ScrapedVideoDetails): PlatformVideoDetai
           details.author.name,
           details.author.url,
           details.author.thumbnail,
-          "",
         )
       : undefined,
     datetime: details.datetime ?? undefined,
@@ -106,7 +105,6 @@ export function toComment(comment: ScrapedComment, contextUrl: string): Platform
       comment.authorName || "Anonymous",
       comment.authorUrl,
       comment.authorThumbnail,
-      "",
     ),
     message: comment.message,
     date: comment.date ?? undefined,

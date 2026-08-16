@@ -10,6 +10,7 @@ import {
   expectVideoDetails,
   loadPlugin,
   pluginExceptionType,
+  type MockResponse,
   type PluginEnv,
 } from "@grayjay/tester";
 
@@ -65,7 +66,7 @@ async function makeEnv(settings: Record<string, string> = {}): Promise<PluginEnv
     script: join(import.meta.dir, "..", "dist", "HypnotubeScript.js"),
     settings,
     http: {
-      mock: (req) => {
+      mock: (req): MockResponse => {
         if (req.method === "POST" && req.url.endsWith("/age-gate")) {
           gate.gated = false;
           return {
@@ -123,7 +124,7 @@ describe("Hypnotube", () => {
   test("search paginates and maps the chronological order", async () => {
     await preload();
     const env = await makeEnv();
-    const pager = expectPager(env.source.search("sissy", Type.Feed.Mixed, Type.Order.Chronological, {}), "VideoPager");
+    const pager = expectPager(env.source.search!("sissy", Type.Feed.Mixed, Type.Order.Chronological, {}), "VideoPager");
     // Page 1 is the searchgate POST's redirect landing.
     const post = env.requests.find((r) => r.url.endsWith("/searchgate.php"));
     expect(post?.body).toContain("q=sissy");
@@ -135,8 +136,8 @@ describe("Hypnotube", () => {
   test("video details: sources, author, metadata, rating, description", async () => {
     await preload();
     const env = await makeEnv();
-    const { video, description } = expectVideoDetails(env.source.getContentDetails(VIDEO_URL));
-    const details = env.source.getContentDetails(VIDEO_URL) as unknown as Record<string, unknown>;
+    const { video, description } = expectVideoDetails(env.source.getContentDetails!(VIDEO_URL));
+    const details = env.source.getContentDetails!(VIDEO_URL) as unknown as Record<string, unknown>;
     expect(details["name"]).toBe("WhiteBoi Life");
     expect(details["duration"]).toBe(303);
     expect(details["viewCount"]).toBeGreaterThan(0);
@@ -151,7 +152,7 @@ describe("Hypnotube", () => {
   test("video details exposes recommendations", async () => {
     await preload();
     const env = await makeEnv();
-    const details = env.source.getContentDetails(VIDEO_URL) as unknown as {
+    const details = env.source.getContentDetails!(VIDEO_URL) as unknown as {
       getContentRecommendations?: () => unknown;
     };
     expect(typeof details.getContentRecommendations).toBe("function");
@@ -163,7 +164,7 @@ describe("Hypnotube", () => {
   test("comments load with authors, messages and dates", async () => {
     await preload();
     const env = await makeEnv();
-    const pager = expectPager(env.source.getComments(VIDEO_URL), "CommentPager");
+    const pager = expectPager(env.source.getComments!(VIDEO_URL), "CommentPager");
     expect(pager.results.length).toBeGreaterThan(2);
     for (const comment of pager.results) expectComment(comment);
     const first = pager.results[0]! as Record<string, unknown>;
@@ -176,11 +177,11 @@ describe("Hypnotube", () => {
   test("channel page and uploads", async () => {
     await preload();
     const env = await makeEnv();
-    expect(env.source.isChannelUrl(USER_URL)).toBe(true);
-    const channel = expectChannel(env.source.getChannel(USER_URL));
+    expect(env.source.isChannelUrl!(USER_URL)).toBe(true);
+    const channel = expectChannel(env.source.getChannel!(USER_URL));
     expect(channel["name"]).toBe("Niqqadick");
 
-    const pager = expectPager(env.source.getChannelContents(USER_URL), "VideoPager");
+    const pager = expectPager(env.source.getChannelContents!(USER_URL, Type.Feed.Mixed, null, {}), "VideoPager");
     expect(pager.results.length).toBeGreaterThan(0);
     expectVideo(pager.results[0]!);
     expect(env.requests.some((r) => r.url === "https://hypnotube.com/uploads-by-user/284360/")).toBe(true);
@@ -189,8 +190,8 @@ describe("Hypnotube", () => {
   test("playlist page", async () => {
     await preload();
     const env = await makeEnv();
-    expect(env.source.isPlaylistUrl(PLAYLIST_URL)).toBe(true);
-    const playlist = expectContent(env.source.getPlaylist(PLAYLIST_URL));
+    expect(env.source.isPlaylistUrl!(PLAYLIST_URL)).toBe(true);
+    const playlist = expectContent(env.source.getPlaylist!(PLAYLIST_URL));
     expect(playlist["name"]).toContain("Premature");
     const contents = expectPager(playlist["contents"], "VideoPager");
     expect(contents.results.length).toBeGreaterThan(0);
@@ -200,9 +201,9 @@ describe("Hypnotube", () => {
   test("non-video urls are rejected", async () => {
     await preload();
     const env = await makeEnv();
-    expect(env.source.isContentDetailsUrl(USER_URL)).toBe(false);
+    expect(env.source.isContentDetailsUrl!(USER_URL)).toBe(false);
     try {
-      env.source.getComments(USER_URL);
+      env.source.getComments!(USER_URL);
       expect.unreachable();
     } catch (err) {
       expect(pluginExceptionType(err)).toBe("ScriptException");

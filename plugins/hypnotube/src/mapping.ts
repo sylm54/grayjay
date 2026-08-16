@@ -107,7 +107,7 @@ export function toComment(comment: SiteComment, contextUrl: string): PlatformCom
     author: new PlatformAuthorLink(
       new PlatformID(PLATFORM, comment.authorName, pluginId()),
       comment.authorName,
-      comment.authorUrl,
+      comment.authorUrl ?? "",
       comment.avatar,
     ),
     message: comment.message,

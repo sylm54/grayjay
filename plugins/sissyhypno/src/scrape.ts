@@ -5,6 +5,8 @@
  * parsed with the engine's `domParser` package (Jsoup-flavored DOMNode).
  */
 
+import type { DOMNode } from "@grayjay/runtime";
+
 export const PLATFORM = "Sissyhypno";
 export const BASE = "https://sissyhypno.com";
 

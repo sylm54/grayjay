@@ -106,7 +106,7 @@ describe("Sissyhypno", () => {
   test("search returns video cards and paginates", async () => {
     await preload();
     const env = await makeEnv();
-    const pager = expectPager(env.source.search("sissy", Type.Feed.Mixed, null, {}), "VideoPager");
+    const pager = expectPager(env.source.search!("sissy", Type.Feed.Mixed, null, {}), "VideoPager");
     expect(pager.results.length).toBeGreaterThan(0);
     expectVideo(pager.results[0]!);
 
@@ -124,43 +124,45 @@ describe("Sissyhypno", () => {
   test("video details carry title, author, source, rating and metadata", async () => {
     await preload();
     const env = await makeEnv();
-    const details = expectVideoDetails(env.source.getContentDetails(VIDEO_URL));
+    const details = expectVideoDetails(env.source.getContentDetails!(VIDEO_URL)) as unknown as Record<string, unknown>;
 
-    expect(details.name).toBe("Sissy Hypno Slut - Follow Your Dreams");
-    expect(details.author?.name).toBe("SissyHypno");
-    expect(details.author?.url).toBe("https://sissyhypno.com/user/sissyhypno-2/");
-    expect(details.duration).toBe(378); // 06:18
-    expect(details.viewCount).toBe(415);
-    expect(details.datetime).toBe(Math.floor(Date.UTC(2026, 7, 16, 12, 36, 48) / 1000));
-    expect(details.description).toContain("Let men use your body");
-    expect(details.description).toContain("Tags: mtg619");
-    expect(details.description).toContain("Categories: Anal");
-    expect(details.rating?.likes).toBe(1);
-    expect(details.rating?.dislikes).toBe(0);
-    const sources = (details as unknown as { video: { videoSources: { url: string; container: string }[] } }).video.videoSources;
+    expect(details["name"]).toBe("Sissy Hypno Slut - Follow Your Dreams");
+    const author = details["author"] as { name?: string; url?: string } | undefined;
+    expect(author?.name).toBe("SissyHypno");
+    expect(author?.url).toBe("https://sissyhypno.com/user/sissyhypno-2/");
+    expect(details["duration"]).toBe(378); // 06:18
+    expect(details["viewCount"]).toBe(415);
+    expect(details["datetime"]).toBe(Math.floor(Date.UTC(2026, 7, 16, 12, 36, 48) / 1000));
+    expect(details["description"]).toContain("Let men use your body");
+    expect(details["description"]).toContain("Tags: mtg619");
+    expect(details["description"]).toContain("Categories: Anal");
+    const rating = details["rating"] as { likes?: number; dislikes?: number } | undefined;
+    expect(rating?.likes).toBe(1);
+    expect(rating?.dislikes).toBe(0);
+    const sources = (details["video"] as { videoSources: { url: string; container: string }[] }).videoSources;
     expect(sources).toHaveLength(1);
     expect(sources[0]!.url).toContain("/media/videos/");
     expect(sources[0]!.container).toBe("video/mp4");
-    expect(details.isLive).toBe(false);
+    expect(details["isLive"]).toBe(false);
   });
 
   test("details object and source both expose related videos", async () => {
     await preload();
     const env = await makeEnv();
-    const details = expectVideoDetails(env.source.getContentDetails(VIDEO_URL));
+    const details = expectVideoDetails(env.source.getContentDetails!(VIDEO_URL));
 
     const fromDetails = expectPager((details as unknown as { getContentRecommendations: () => VideoPager }).getContentRecommendations(), "VideoPager");
     expect(fromDetails.results.length).toBeGreaterThan(0);
     expectVideo(fromDetails.results[0]!);
 
-    const fromSource = expectPager(env.source.getContentRecommendations(VIDEO_URL, undefined), "VideoPager");
+    const fromSource = expectPager(env.source.getContentRecommendations!(VIDEO_URL), "VideoPager");
     expect(fromSource.results.length).toBe(fromDetails.results.length);
   });
 
   test("comments parse authors, messages and relative dates", async () => {
     await preload();
     const env = await makeEnv();
-    const pager = expectPager(env.source.getComments(COMMENTS_VIDEO_URL), "CommentPager");
+    const pager = expectPager(env.source.getComments!(COMMENTS_VIDEO_URL), "CommentPager");
     expect(pager.results.length).toBe(21);
     expectComment(pager.results[0]!);
     const first = pager.results[0]! as unknown as { author: { name: string; url: string }; message: string; date: number };
@@ -175,7 +177,7 @@ describe("Sissyhypno", () => {
     const env = await makeEnv();
     const url = "https://sissyhypno.com/templates/default_tube2016/template.ajax_comments.php?id=16461966";
     cache.set(url, "There are no comments for this video. Please leave your feedback and be the first!");
-    const pager = expectPager(env.source.getComments(VIDEO_URL), "CommentPager");
+    const pager = expectPager(env.source.getComments!(VIDEO_URL), "CommentPager");
     expect(pager.results).toHaveLength(0);
     expect(pager.hasMore).toBe(false);
   });
@@ -186,7 +188,7 @@ describe("Sissyhypno", () => {
     expect(env.source.isChannelUrl!(CHANNEL_URL)).toBe(true);
     expect(env.source.isChannelUrl!(VIDEO_URL)).toBe(false);
 
-    const channel = expectChannel(env.source.getChannel(CHANNEL_URL));
+    const channel = expectChannel(env.source.getChannel!(CHANNEL_URL));
     expect(channel.name).toBe("SissyHypno");
     expect(channel.thumbnail).toContain("/media/misc/");
   });
@@ -194,7 +196,7 @@ describe("Sissyhypno", () => {
   test("channel contents page through uploads-by-user", async () => {
     await preload();
     const env = await makeEnv();
-    const pager = expectPager(env.source.getChannelContents(CHANNEL_URL), "VideoPager");
+    const pager = expectPager(env.source.getChannelContents!(CHANNEL_URL, Type.Feed.Mixed, null, {}), "VideoPager");
     expect(pager.results.length).toBeGreaterThan(0);
     expectVideo(pager.results[0]!);
 
@@ -209,6 +211,6 @@ describe("Sissyhypno", () => {
     const env = await makeEnv();
     expect(env.source.isContentDetailsUrl!(VIDEO_URL)).toBe(true);
     expect(env.source.isContentDetailsUrl!("https://sissyhypno.com/most-recent/")).toBe(false);
-    expectContent(env.source.getContentDetails(VIDEO_URL));
+    expectContent(env.source.getContentDetails!(VIDEO_URL));
   });
 });

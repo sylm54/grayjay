@@ -1,0 +1,46 @@
+name: Release plugin
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install
+
+      - name: Typecheck
+        run: bunx tsc --noEmit
+
+      - name: Test
+        run: bun test
+
+      # GRAYJAY_SIGNING_KEY secret (optional): base64 of your PEM private key
+      # created by `bunx --bun gj build --sign` locally. Without it the plugin
+      # is released unsigned (users see a security warning on update).
+      - name: Build + sign + verify
+        env:
+          GRAYJAY_SIGNING_KEY: ${{ secrets.GRAYJAY_SIGNING_KEY }}
+        run: |
+          bunx --bun gj build --minify ${{ env.GRAYJAY_SIGNING_KEY != '' && '--sign' || '' }}
+          bunx --bun gj validate
+
+      # Publish to the FIXED "release" tag so asset URLs stay stable — the
+      # app's update check polls sourceUrl forever:
+      #   https://github.com/<owner>/<repo>/releases/download/release/{{SAFE_NAME}}Config.json
+      - name: Upload to stable release tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create release --title "Latest plugin" --notes "Auto-release from $GITHUB_SHA" --prerelease=false || true
+          gh release upload release dist/* --clobber

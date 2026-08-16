@@ -1,0 +1,65 @@
+import { describe, expect, test } from "bun:test";
+import { join } from "node:path";
+
+const ROOT = join(import.meta.dir, "..");
+const CONFIG = join(ROOT, "grayjay.config.ts");
+const SCRIPT = join(ROOT, "dist", "{{SAFE_NAME}}Script.js");
+import { collectPages, expectPager, expectVideo, expectVideoDetails, loadPlugin } from "@grayjay/tester";
+
+/**
+ * Plugin tests run against the built bundle (gj test rebuilds first).
+ * The http mock makes them deterministic and offline.
+ */
+describe("{{NAME}}", () => {
+  const envPromise = loadPlugin({
+    config: CONFIG,
+    script: SCRIPT,
+    settings: { "Feed size": "20" },
+    http: {
+      mock: (req) => {
+        if (req.url.startsWith("https://api.example.com/feed")) {
+          return {
+            code: 200,
+            body: JSON.stringify({
+              items: [
+                { id: "v1", title: "First {{NAME}} video", seconds: 60 },
+                { id: "v2", title: "Second video", seconds: 90 },
+              ],
+              next: true,
+            }),
+          };
+        }
+        if (req.url.startsWith("https://api.example.com/stream/")) {
+          return { code: 200, body: "", headers: {} };
+        }
+        return { code: 404, body: "" };
+      },
+    },
+  });
+
+  test("home feed returns engine-contract videos", async () => {
+    const env = await envPromise;
+    const pager = env.source.getHome();
+    const checked = expectPager(pager, "VideoPager");
+    expect(checked.results.length).toBe(2);
+    expectVideo(checked.results[0]);
+    expect(checked.results[0]!.name).toBe("First {{NAME}} video");
+  });
+
+  test("pager pagination works", async () => {
+    const env = await envPromise;
+    const items = collectPages(env.source.getHome(), { maxPages: 2 });
+    expect(items.length).toBeGreaterThan(0);
+  });
+
+  test("content details describe a playable video", async () => {
+    const env = await envPromise;
+    const details = env.source.getContentDetails!("https://example.com/watch/v1");
+    expectVideoDetails(details);
+  });
+
+  test("plugin logged its enable line", async () => {
+    const env = await envPromise;
+    expect(env.logs.some((l) => l.includes("{{NAME}} enabled"))).toBe(true);
+  });
+});

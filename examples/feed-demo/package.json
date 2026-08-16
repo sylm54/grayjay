@@ -1,0 +1,20 @@
+{
+  "name": "@grayjay/example-feed-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline example Grayjay plugin proving the devkit end to end (build, sign, test, validate).",
+  "type": "module",
+  "scripts": {
+    "build": "gj build",
+    "release": "gj build --sign --bump --minify",
+    "test": "gj test",
+    "validate": "gj validate",
+    "serve": "gj serve --watch"
+  },
+  "devDependencies": {
+    "@grayjay/cli": "workspace:*",
+    "@grayjay/config": "workspace:*",
+    "@grayjay/runtime": "workspace:*",
+    "@grayjay/tester": "workspace:*"
+  }
+}

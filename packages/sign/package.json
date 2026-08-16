@@ -1,0 +1,16 @@
+{
+  "name": "@grayjay/sign",
+  "version": "0.1.0",
+  "description": "Grayjay plugin script signing: RSA-2048 SHA-512, byte-compatible with the official sign-script.sh / openssl flow.",
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p tsconfig.json"
+  }
+}

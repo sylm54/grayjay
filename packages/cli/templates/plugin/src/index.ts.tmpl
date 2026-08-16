@@ -1,0 +1,148 @@
+/**
+ * {{NAME}} — Grayjay plugin.
+ *
+ * Everything here is typed via ambient globals from @grayjay/runtime
+ * (source, http, bridge, PlatformVideo, …). No imports needed, nothing
+ * bundled except your own code — `gj build` compiles this file to a single
+ * classic script the Grayjay engine executes.
+ */
+
+const PLATFORM = "{{SAFE_NAME}}";
+const API = "https://api.example.com";
+
+/** Example pager: fetches pages lazily. Adapt to your platform's API. */
+class HomePager extends VideoPager {
+  constructor(results: PlatformVideo[], hasMore: boolean, context: { page: number }) {
+    super(results, hasMore, context);
+  }
+
+  override nextPage(): HomePager {
+    const page = ((this.context as { page: number }).page ?? 1) + 1;
+    const { videos, hasMore } = fetchFeed(page);
+    this.results = videos;
+    this.hasMore = hasMore;
+    (this.context as { page: number }).page = page;
+    return this;
+  }
+}
+
+function fetchFeed(page: number): { videos: PlatformVideo[]; hasMore: boolean } {
+  const resp = http.GET(`${API}/feed?page=${page}`, { accept: "application/json" }, false);
+  if (!resp.isOk) {
+    throw new ScriptException(`Feed request failed (${resp.code}): ${resp.body.slice(0, 200)}`);
+  }
+  const data = JSON.parse(resp.body) as { items?: Array<{ id: string; title: string; seconds: number }>; next?: boolean };
+  return {
+    videos: (data.items ?? []).map((item) => makeVideo(item.id, item.title, item.seconds)),
+    hasMore: data.next ?? false,
+  };
+}
+
+function makeVideo(id: string, title: string, durationSeconds: number): PlatformVideo {
+  return new PlatformVideo({
+    id: new PlatformID(PLATFORM, id, plugin.config.id),
+    name: title,
+    author: makeAuthor(),
+    uploadDate: Math.floor(Date.now() / 1000),
+    duration: durationSeconds,
+    viewCount: -1,
+    url: `https://example.com/watch/${id}`,
+    thumbnails: new Thumbnails([new Thumbnail(`https://api.example.com/thumb/${id}.png`, 720)]),
+    isLive: false,
+  });
+}
+
+function makeAuthor(): PlatformAuthorLink {
+  return new PlatformAuthorLink(
+    new PlatformID(PLATFORM, "channel", plugin.config.id),
+    "{{NAME}}",
+    "https://example.com/channel",
+  );
+}
+
+definePlugin({
+  enable(config, settings, savedState) {
+    log(`{{NAME}} enabled (v${config.version})`);
+    if (settings["Show live"] === false) {
+      log("live content disabled via settings");
+    }
+  },
+
+  getHome() {
+    const { videos, hasMore } = fetchFeed(1);
+    return new HomePager(videos, hasMore, { page: 1 });
+  },
+
+  searchSuggestions(query) {
+    return [query, `${query} latest`, `${query} popular`];
+  },
+
+  getSearchCapabilities() {
+    return {
+      types: [Type.Feed.Mixed],
+      sorts: [Type.Order.Chronological],
+      filters: [],
+    };
+  },
+
+  search(query, type, order, filters) {
+    log(`search "${query}" type=${type ?? "*"} order=${order ?? "*"} filters=${JSON.stringify(filters ?? {})}`);
+    // Implement real search; this demo filters the home feed client-side.
+    const { videos, hasMore } = fetchFeed(1);
+    const needle = query.toLowerCase();
+    return new VideoPager(
+      videos.filter((v) => v.name.toLowerCase().includes(needle)),
+      hasMore,
+      { query },
+    );
+  },
+
+  isChannelUrl(url) {
+    return url.startsWith("https://example.com/channel");
+  },
+
+  getChannel(url) {
+    return new PlatformChannel({ name: "{{NAME}} Channel", url, subscribers: -1 });
+  },
+
+  getChannelContents(url, type, order, filters) {
+    return new VideoPager([], false, { url });
+  },
+
+  isContentDetailsUrl(url) {
+    return url.startsWith("https://example.com/watch/");
+  },
+
+  getContentDetails(url) {
+    const id = url.split("/").pop() ?? "";
+    return new PlatformVideoDetails({
+      id: new PlatformID(PLATFORM, id, plugin.config.id),
+      name: `{{NAME}} video ${id}`,
+      author: makeAuthor(),
+      url,
+      duration: 120,
+      isLive: false,
+      description: "Replace this with a real API call in src/index.ts.",
+      video: new VideoSourceDescriptor([
+        new VideoUrlSource({
+          width: 1280,
+          height: 720,
+          container: "video/mp4",
+          codec: "avc1.4d401e",
+          name: "720p",
+          duration: 120,
+          url: `https://api.example.com/stream/${id}.mp4`,
+        }),
+      ]),
+      rating: new RatingLikes(0),
+    });
+  },
+
+  getComments(url) {
+    return new CommentPager([], false, { url });
+  },
+
+  saveState() {
+    return JSON.stringify({ savedAt: Date.now() });
+  },
+});

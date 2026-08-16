@@ -1,0 +1,31 @@
+{
+  "name": "@grayjay/tester",
+  "version": "0.1.0",
+  "description": "Run built Grayjay plugins under bun:test with a faithful engine harness: sync http, mocks, contract assertions.",
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@grayjay/runtime": "file:../runtime",
+    "@grayjay/config": "file:../config"
+  },
+  "peerDependencies": {
+    "linkedom": "^0.18"
+  },
+  "peerDependenciesMeta": {
+    "linkedom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "linkedom": "^0.18.12"
+  }
+}

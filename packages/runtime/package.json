@@ -1,0 +1,20 @@
+{
+  "name": "@grayjay/runtime",
+  "version": "0.1.0",
+  "description": "Types for the Grayjay plugin runtime (ambient globals) + a clean-room polyfill for testing.",
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./globals": {
+      "types": "./src/globals.d.ts",
+      "default": "./src/globals.d.ts"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p tsconfig.json"
+  }
+}

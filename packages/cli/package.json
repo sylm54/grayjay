@@ -1,0 +1,28 @@
+{
+  "name": "@grayjay/cli",
+  "version": "0.1.0",
+  "description": "gj \u2014 build, sign, test and serve Grayjay plugins from TypeScript with end-to-end type safety.",
+  "type": "module",
+  "bin": {
+    "gj": "./bin/gj.ts"
+  },
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@grayjay/config": "file:../config",
+    "@grayjay/sign": "file:../sign",
+    "@grayjay/tester": "file:../tester",
+    "qrcode-terminal": "^0.12.0"
+  },
+  "devDependencies": {
+    "@types/qrcode-terminal": "^0.12.2"
+  }
+}

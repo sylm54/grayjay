@@ -1,0 +1,21 @@
+{
+  "name": "{{NAME_LOWER}}-grayjay-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "gj build",
+    "release": "gj build --sign --bump --minify",
+    "test": "gj test",
+    "validate": "gj validate",
+    "serve": "gj serve --watch"
+  },
+  "devDependencies": {
+    "@grayjay/cli": "{{DEP_CLI}}",
+    "@grayjay/config": "{{DEP_CONFIG}}",
+    "@grayjay/runtime": "{{DEP_RUNTIME}}",
+    "@grayjay/tester": "{{DEP_TESTER}}",
+    "@types/bun": "^1.3.14",
+    "typescript": "^5.6.0"
+  }
+}

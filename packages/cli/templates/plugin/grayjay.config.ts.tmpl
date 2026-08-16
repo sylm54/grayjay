@@ -1,0 +1,36 @@
+import { defineConfig, setting } from "@grayjay/config";
+
+/**
+ * Grayjay plugin config. `gj build` validates it and emits dist/{{SAFE_NAME}}Config.json.
+ * Docs: https://gitlab.futo.org/videostreaming/grayjay/-/blob/master/plugin-development.md
+ */
+export default defineConfig({
+  name: "{{NAME}}",
+  description: "Describe what {{NAME}} provides.",
+  author: "Your Name",
+  authorUrl: "https://example.com",
+  repositoryUrl: "https://github.com/you/{{NAME_LOWER}}-grayjay-plugin",
+
+  // Bump on every release; users get updates via sourceUrl below.
+  version: 1,
+  // Generate once, keep forever. (This scaffold already did.)
+  id: "{{UUID}}",
+  iconUrl: "./icon.png",
+
+  packages: ["Http"],
+  allowUrls: [
+    // Domains your plugin talks to. "everywhere" is possible but warns users.
+    "api.example.com",
+    "example.com",
+  ],
+
+  // Absolute url of the published config; the app polls it for updates.
+  // The bundled release workflow publishes to a stable "release" tag:
+  sourceUrl: "https://github.com/YOU/REPO/releases/download/release/{{SAFE_NAME}}Config.json",
+
+  settings: [
+    setting.header("Content"),
+    setting.boolean("Show live", "Include live streams in feeds", true),
+    setting.dropdown("Feed size", "Items per page", ["10", "20", "50"], "20"),
+  ],
+});

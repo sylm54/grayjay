@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  check-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install
+
+      - name: Typecheck all workspaces
+        run: |
+          for p in packages/* examples/* plugins/*; do
+            [ -d "$p" ] || continue
+            [ -f "$p/tsconfig.json" ] || continue
+            echo "::group::Typecheck $p"
+            (cd "$p" && bunx tsc --noEmit -p tsconfig.json)
+            echo "::endgroup::"
+          done
+
+      # Build every plugin before running tests: the bun:test suites run
+      # against the built bundles (dist/), exactly like the engine would.
+      - name: Build + validate example and all plugins
+        env:
+          # Optional repo secret: base64 of a PEM key created by
+          # `bunx --bun gj build --sign` locally. Releases stay signed by the
+          # same author key; without it plugins build unsigned.
+          GRAYJAY_SIGNING_KEY: ${{ secrets.GRAYJAY_SIGNING_KEY }}
+        run: |
+          build_one() {
+            local dir="$1"
+            echo "::group::Build $dir"
+            (
+              cd "$dir"
+              if [ -n "$GRAYJAY_SIGNING_KEY" ]; then
+                bunx --bun gj build --minify --sign
+              else
+                bunx --bun gj build --minify
+              fi
+              bunx --bun gj validate
+            )
+            echo "::endgroup::"
+          }
+          build_one examples/feed-demo
+          for p in plugins/*; do
+            [ -d "$p" ] || continue
+            [ -f "$p/grayjay.config.ts" ] || [ -f "$p/grayjay.config.json" ] || continue
+            build_one "$p"
+          done
+
+      - name: Unit + integration tests (signer cross-verified with openssl)
+        run: bun test packages examples plugins
+
+      - name: Smoke test gj serve
+        run: |
+          cd examples/feed-demo
+          bunx --bun gj serve --port 8790 &
+          SERVE_PID=$!
+          sleep 3
+          curl -fsS http://127.0.0.1:8790/FeedDemoConfig.json > /dev/null
+          curl -fsS http://127.0.0.1:8790/FeedDemoScript.js > /dev/null
+          kill $SERVE_PID
+
+  release:
+    needs: check-and-test
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install
+
+      - name: Build + sign example and all plugins
+        env:
+          GRAYJAY_SIGNING_KEY: ${{ secrets.GRAYJAY_SIGNING_KEY }}
+        run: |
+          build_one() {
+            local dir="$1"
+            echo "::group::Release build $dir"
+            (
+              cd "$dir"
+              if [ -n "$GRAYJAY_SIGNING_KEY" ]; then
+                bunx --bun gj build --minify --sign
+              else
+                bunx --bun gj build --minify
+              fi
+            )
+            echo "::endgroup::"
+          }
+          build_one examples/feed-demo
+          for p in plugins/*; do
+            [ -d "$p" ] || continue
+            [ -f "$p/grayjay.config.ts" ] || [ -f "$p/grayjay.config.json" ] || continue
+            build_one "$p"
+          done
+
+      # Publish everything to the FIXED "release" tag: asset URLs are
+      # permanent, so plugin sourceUrls keep resolving across releases and
+      # installed apps can poll for updates forever:
+      #   https://github.com/<owner>/<repo>/releases/download/release/<Name>Config.json
+      - name: Upload to stable release tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create release --title "Latest plugin builds" --notes "Auto-release from $GITHUB_SHA" || true
+          gh release upload release examples/feed-demo/dist/* plugins/*/dist/* --clobber

@@ -1,0 +1,33 @@
+# {{NAME}} (Grayjay plugin)
+
+TypeScript Grayjay plugin, built with the grayjay devkit (`gj`).
+
+## Commands
+
+| Command | What it does |
+| --- | --- |
+| `bun run test` | build + run tests under `bun:test` (offline, mocked http) |
+| `bun run build` | emit `dist/{{SAFE_NAME}}Config.json` + `{{SAFE_NAME}}Script.js` |
+| `bun run release` | build signed + minified + version bump |
+| `bun run serve` | serve `dist/` on the LAN (QR code) for the Grayjay DevServer |
+| `bun run validate` | validate config, bundle and signature |
+
+## Releasing (stable URL)
+
+Push a tag or merge to master: `.github/workflows/release.yml` builds and
+uploads the plugin to a **fixed `release` tag**. Its asset URLs never change:
+
+```
+https://github.com/YOU/REPO/releases/download/release/{{SAFE_NAME}}Config.json
+```
+
+Set `sourceUrl` in `grayjay.config.ts` to that URL once — the app will poll it
+for updates. Add your signing key as the `GRAYJAY_SIGNING_KEY` repository
+secret (base64 of the PEM created by `gj build --sign`) so releases stay
+signed by the same author.
+
+## Layout
+
+- `grayjay.config.ts` — plugin manifest (typed via `defineConfig`)
+- `src/index.ts` — plugin code, typed by ambient engine globals
+- `src/index.test.ts` — contract tests (`@grayjay/tester`)

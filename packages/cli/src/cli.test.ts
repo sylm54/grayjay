@@ -32,9 +32,9 @@ describe("gj build (against examples/feed-demo)", () => {
   test("emits a config the app can resolve", async () => {
     const emitted = JSON.parse(await Bun.file(built!.configJsonPath).text()) as SourcePluginConfig;
     expect(emitted.scriptUrl).toBe("./FeedDemoScript.js");
-    expect(emitted.iconUrl).toBe("./icon.png");
+    expect(emitted.iconUrl).toBe("./FeedDemoIcon.png");
     expect(emitted.name).toBe("FeedDemo");
-    expect(existsSync(join(built!.outDir, "icon.png"))).toBe(true);
+    expect(existsSync(join(built!.outDir, "FeedDemoIcon.png"))).toBe(true);
   });
 
   test("signing produces a verifiable config", async () => {
@@ -139,5 +139,17 @@ describe("icon generator", () => {
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
     expect(view.getUint32(16)).toBe(64);
     expect(view.getUint32(20)).toBe(64);
+  });
+});
+
+describe("gj build stale-artifact cleanup", () => {
+  test("removes files the previous build emitted (icon renames)", async () => {
+    const outDir = join(EXAMPLE_DIR, "dist");
+    // Simulate an earlier build that emitted an icon under another name.
+    await Bun.write(join(outDir, ".grayjay", "dist-manifest.json"), JSON.stringify({ files: ["OldIcon.png"] }));
+    await Bun.write(join(outDir, "OldIcon.png"), "stale");
+    await build({ configPath: EXAMPLE_CONFIG, quiet: true });
+    expect(existsSync(join(outDir, "OldIcon.png"))).toBe(false);
+    expect(existsSync(join(outDir, "FeedDemoIcon.png"))).toBe(true);
   });
 });

@@ -16,7 +16,7 @@ export default defineConfig({
 
   version: 1,
   id: "6f6d2d64-9a1a-4bdf-9e75-9d0aa70d4a18",
-  iconUrl: "./icon.png",
+  iconUrl: "./FeedDemoIcon.png",
 
   packages: ["Http"],
   allowUrls: ["api.feeddemo.test", "feeddemo.test"],

@@ -16,7 +16,7 @@ export default defineConfig({
   // One above the last published version of the original plugin.
   version: 13,
   id: "03fb92a4-f857-4f45-a7bf-00c1660e75cb",
-  iconUrl: "./icon.png",
+  iconUrl: "./PMVHavenIcon.png",
 
   packages: ["Http"],
   allowUrls: [

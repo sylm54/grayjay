@@ -4,8 +4,8 @@
  * sign and inject scriptSignature/scriptPublicKey.
  */
 
-import { copyFile, mkdir, stat, writeFile } from "node:fs/promises";
-import { basename, isAbsolute, join, resolve } from "node:path";
+import { copyFile, mkdir, rm, stat, writeFile } from "node:fs/promises";
+import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 import { existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import type { SourcePluginConfig, ValidationResult } from "@grayjay/config";
@@ -136,10 +136,24 @@ export async function build(options: BuildOptions = {}): Promise<BuildResult> {
 
   // --- emit ---------------------------------------------------------------------
   await mkdir(outDir, { recursive: true });
+  // Remove artifacts a previous build emitted (manifest-tracked), so renamed
+  // files (e.g. an icon) never linger and break release uploads.
+  const manifestPath = join(outDir, ".grayjay", "dist-manifest.json");
+  try {
+    const previous = (await Bun.file(manifestPath).json()) as { files: string[] };
+    for (const file of previous.files ?? []) {
+      await rm(join(outDir, file), { force: true }).catch(() => {});
+    }
+  } catch {
+    // No manifest yet — leave existing files alone.
+  }
+  const emittedFiles: string[] = [];
+
   const scriptName = `${stem}Script.js`;
   const configJsonName = `${stem}Config.json`;
   const scriptPath = join(outDir, scriptName);
   await writeFile(scriptPath, finalScript);
+  emittedFiles.push(scriptName);
 
   let emitted: SourcePluginConfig = {
     ...config,
